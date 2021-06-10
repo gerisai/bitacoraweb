@@ -13,7 +13,7 @@ Stack
 import Script from '../Form/Loads/Script';
 import { FcDocument } from 'react-icons/fc';
 
-const ScriptAlert = ({ isOpen, onClose, cancelRef, form = {}, splitters }) => {
+const ScriptAlert = ({ isOpen, onClose, cancelRef, form }) => {
     const [scriptState, setScriptState] = useState("");
     const [copyState, setCopyState ] = useState(false);
 
@@ -26,7 +26,7 @@ const ScriptAlert = ({ isOpen, onClose, cancelRef, form = {}, splitters }) => {
         setTimeout(() => {
             setCopyState(false);
         }, 5000);
-    })
+    },[copyState]);
 
     return (
     <AlertDialog
@@ -45,7 +45,7 @@ const ScriptAlert = ({ isOpen, onClose, cancelRef, form = {}, splitters }) => {
                 <Stack direction="row" justify="center" mb={2}>
                     <Button leftIcon={<FcDocument/>} colorScheme="teal" variant="solid" onClick={handleCopy}>{copyState ? 'Copiado 👍' : 'Copiar'}</Button>
                 </Stack>
-                    <Script form={form} splitters={splitters} setScriptState={setScriptState}/>
+                    <Script form={form} setScriptState={setScriptState}/>
             </AlertDialogBody>
             <AlertDialogFooter>
             </AlertDialogFooter>

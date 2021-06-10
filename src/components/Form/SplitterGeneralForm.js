@@ -11,15 +11,21 @@ import {
     NumberDecrementStepper,
 } from '@chakra-ui/react';
 
-const SplitterGeneralForm = ({ id, form, handleChange }) => {
+const SplitterGeneralForm = ({ id, form, setForm }) => {
+    const handleChange = (e) => {
+        let newForm = {...form}
+        newForm.splitters[id - 1] = {...form.splitters[id-1]};
+        newForm.splitters[id - 1][e.target.name] = e.target.value;
+        setForm(newForm);        
+    }
 
     return (
         <Wrap spacing="30px" justify="center">
         <WrapItem>
             <InputGroup>
                 <InputLeftAddon children="F" />
-                <NumberInput defaultValue={0} min={0} max={1} maxW={70} value={form[`f${id}`]}>
-                    <NumberInputField name={`f${id}`} onChange={handleChange}/>
+                <NumberInput defaultValue={0} min={0} max={1} maxW={70} value={form.splitters[id - 1].f}>
+                    <NumberInputField name="f" onChange={handleChange}/>
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -30,8 +36,8 @@ const SplitterGeneralForm = ({ id, form, handleChange }) => {
         <WrapItem>
             <InputGroup>
                 <InputLeftAddon children="S" />
-                <NumberInput defaultValue={0} min={0} max={18} maxW={70} value={form[`s${id}`]}>
-                    <NumberInputField name={`s${id}`} onChange={handleChange}/>
+                <NumberInput defaultValue={0} min={0} max={18} maxW={70} value={form.splitters[id - 1].s}>
+                    <NumberInputField name="s" onChange={handleChange}/>
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -42,8 +48,8 @@ const SplitterGeneralForm = ({ id, form, handleChange }) => {
         <WrapItem>
             <InputGroup>
                 <InputLeftAddon children="P" />
-                <NumberInput defaultValue={0} min={0} max={16} maxW={70} value={form[`p${id}`]}>
-                    <NumberInputField name={`p${id}`} onChange={handleChange} />
+                <NumberInput defaultValue={0} min={0} max={16} maxW={70} value={form.splitters[id - 1].p}>
+                    <NumberInputField name="p" onChange={handleChange} />
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -52,10 +58,10 @@ const SplitterGeneralForm = ({ id, form, handleChange }) => {
             </InputGroup>
         </WrapItem>
         <WrapItem>
-            <Input variant="filled" placeholder="Ancho de Banda" maxW={160} name={`bw${id}`} onChange={handleChange} value={form[`bw${id}`]}/>
+            <Input type="number" variant="filled" placeholder="Ancho de Banda" maxW={160} name="bw" onChange={handleChange} value={form.splitters[id - 1].bw}/>
         </WrapItem>
         <WrapItem>
-            <Input variant="filled" placeholder="Clientes" maxW={130} name={`clients${id}`} onChange={handleChange} value={form[`clients${id}`]}/>
+            <Input type="number" variant="filled" placeholder="Clientes" maxW={130} name="clients" onChange={handleChange} value={form.splitters[id - 1].clients}/>
         </WrapItem>
     </Wrap>
     );

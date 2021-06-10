@@ -10,11 +10,9 @@ import SendAlert from './Alerts/SendAlert';
 import ScriptAlert from './Alerts/ScriptAlert';
 import formFields from './Form/Loads/FormFields';
 
-const createArray = (length) => [...Array(length)];
-
 const LogForm = () => {
-    const [splitters,setSplitters] = useState(1);
-    const [ form, setForm ] = useState(formFields);
+    //Form state
+    const [ form, setForm ] = useState(JSON.parse(JSON.stringify(formFields)));
     //Send State
     const [isSendOpen, setSendIsOpen] = useState(false)
     const onSendClose = () => setSendIsOpen(false)
@@ -23,17 +21,32 @@ const LogForm = () => {
     const [isScriptOpen, setScriptIsOpen] = useState(false)
     const onScriptClose = () => setScriptIsOpen(false)
     const cancelScriptRef = useRef()
-    //Ports UI
-    const [sixteen, setSixteen] = useState(false);
-    const [dummy, setDummy] = useState(0);
-    //Support State
+    //Support
     const [ support, setSupport ] = useState(false);
+    
+    const addSplitter = () => {
+        let newForm = {...form};
+        newForm.splitters.push({
+            f: 0,
+            s: 0,
+            p: 0,
+            bw: "",
+            clients: "",
+            portNumber: 8,
+            ports: {},
+            alarms: []
+        });
+        setForm(newForm);
+    }
+
+    const removeSplitter = () => {
+        let newForm = {...form};
+        newForm.splitters.pop();
+        setForm(newForm);
+    }
 
     const handleClean = (e) => {
-        setForm(formFields);
-        setSixteen(false);
-        setDummy(Date.now());
-        setSplitters(1);
+        setForm(JSON.parse(JSON.stringify(formFields)));
         setSupport(false);
     }
 
@@ -42,18 +55,21 @@ const LogForm = () => {
         newForm[e.target.name] = e.target.value;
         newForm = {...form,...newForm};
         setForm(newForm);
-    }
-
-    const handleSwitch = (e) => {
-        e.target.value = e.target.checked ? 16 : 8; 
-        e.target.checked ? setSixteen(true) : setSixteen(false); 
-        handleChange(e);
-    }
+    } 
 
     const handleService = (e) => {
-        if (e.target.value === "Soporte") setSupport(true);
-        else setSupport(false);
-        handleChange(e);
+        let newForm = {};
+        if (e.target.value === "Soporte") {
+            setSupport(true);
+            newForm['type'] = 'NA';
+        }
+        else {
+            setSupport(false);
+            newForm['type'] = form.type === 'NA' ? '' : form.type;
+        }
+        newForm[e.target.name] = e.target.value;
+        newForm = {...form,...newForm};
+        setForm(newForm);
     } 
 
     return(
@@ -66,9 +82,9 @@ const LogForm = () => {
                 <LocationForm form={form} handleChange={handleChange}/>
             </FormSection>
             {
-                createArray(splitters).map((s,i) => 
+                form.splitters.map((s,i) => 
                 <FormSection title={`Splitter ${i+1}`} key={i}>
-                    <SplitterForm form={form} id={i+1} handleChange={handleChange} handleSwitch={handleSwitch} sixteen={sixteen} dummy={dummy} setForm={setForm}/>
+                    <SplitterForm form={form} id={i+1} handleChange={handleChange} setForm={setForm}/>
                 </FormSection>
                 )
             }
@@ -77,8 +93,8 @@ const LogForm = () => {
             </FormSection>
         </Accordion>
         <Stack direction="row" justify="flex-end" my={4}>
-            <Button colorScheme="teal" onClick={() => setSplitters(splitters + 1)}>+Splitter</Button>
-            <Button colorScheme="red" onClick={() => setSplitters(splitters - 1 < 1 ? 1 : splitters - 1)}>-Splitter</Button>
+            <Button colorScheme="teal" onClick={addSplitter}>+Splitter</Button>
+            <Button colorScheme="red" onClick={removeSplitter} isDisabled={form.splitters.length > 1 ? false : true}>-Splitter</Button>
         </Stack>
         <Stack direction="row" justify="center">
             <Button leftIcon={<FcDocument/>} colorScheme="blue" variant="outline" onClick={() => setScriptIsOpen(true)}>Script</Button>
@@ -86,7 +102,7 @@ const LogForm = () => {
             <Button leftIcon={<FcMakeDecision/>} colorScheme="yellow" variant="outline" onClick={handleClean}>Limpiar</Button>
         </Stack>
         <SendAlert isOpen={isSendOpen} onClose={onSendClose} cancelRef={cancelSendRef}/>
-        <ScriptAlert isOpen={isScriptOpen} onClose={onScriptClose} cancelRef={cancelScriptRef} form={form} splitters={splitters}/>
+        <ScriptAlert isOpen={isScriptOpen} onClose={onScriptClose} cancelRef={cancelScriptRef} form={form}/>
         </>
     );
 }   

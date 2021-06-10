@@ -1,14 +1,8 @@
-import { useEffect } from 'react';
 import { Input, Select, WrapItem, Wrap } from '@chakra-ui/react';
 import Providers from './Loads/Providers';
 import Districts from './Loads/Districts';
 
 const GeneralForm = ({ form, handleChange, handleService, support }) => { 
-    
-    useEffect(() => {
-        if (support) document.getElementById("type").value = "NA";
-        else document.getElementById("type").value = "";
-    });
 
     return (
     <Wrap spacing="30px" justify="center">
@@ -36,7 +30,7 @@ const GeneralForm = ({ form, handleChange, handleService, support }) => {
         <Input variant="filled" placeholder="Num Empleado" maxW={170} name="numEmpl" onChange={handleChange} value={form.numEmpl}/>
     </WrapItem>
     <WrapItem>
-        <Input variant="filled" placeholder="Nombre IDC" minW={250} name="idc" onChange={handleChange} value={form.idc}/>
+        <Input variant="filled" placeholder="Nombre IDC" minW={250} name="idc" onChange={handleChange} value={form.idc} style={{textTransform: 'uppercase'}}/>
     </WrapItem>
     <WrapItem>
         <Select placeholder="Proveedor" variant="filled" name="provider" onChange={handleChange} value={form.provider}>

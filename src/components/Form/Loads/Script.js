@@ -1,24 +1,14 @@
 import { Textarea } from '@chakra-ui/react';
 
-const selectAlarms = (form,i) => {
-    let selected = {};
-    for (let prop in form) {
-        if (prop.startsWith(`alarm${i}`)) selected[prop] = form[prop];
+const notNullPorts = (ports,i) => {
+    for (let port in ports) {
+        if (ports[port]) return true;
     }
-    return selected;
+    return false;
 }
 
-const selectPorts = (form,i) => {
-    let selected = {};
-    for (let prop in form) {
-        if (prop.startsWith(`port${i}`)) selected[prop] = form[prop];
-    }
-    return selected;
-}
-
-const Script = ({ form, splitters, setScriptState }) => {
+const Script = ({ form, setScriptState }) => {
     let [ alarmString, portString, summary ] = ["","",""];
-    let Null;
     let statusSummary = {
         Libre: 0,
         Ocupado: 0,
@@ -31,32 +21,27 @@ const Script = ({ form, splitters, setScriptState }) => {
         Atenuado: 0,
         Total: 0
     };
-    for(let i = 1; i < splitters + 1; i++) {
-        if (form[`f${i}`] || form[`s${i}`] || form[`p${i}`]) {
-            alarmString += `*- SPLITTER ${i} -*\n`;
-            alarmString += `Frame ${form[`f${i}`]}  Slot ${form[`s${i}`]}  Puerto ${form[`p${i}`]}  Ancho de banda  ${form[`bw${i}`]}  Número de Clientes  ${form[`clients${i}`]}\n`
+
+    form.splitters.forEach((splitter,i) => {
+        if (parseInt(splitter.f) || parseInt(splitter.s) || parseInt(splitter.p)) {
+            alarmString += `*- SPLITTER ${i + 1} -*\n`;
+            alarmString += `Frame ${splitter.f || ''}  Slot ${splitter.s || ''}  Puerto ${splitter.p || ''}  Ancho de banda  ${splitter.bw || ''}  Número de Clientes  ${splitter.clients || ''}\n`
         }
-        let alarms = selectAlarms(form,i);
-        for (let j = 1; j < Object.keys(alarms).length + 1; j++) {
-            Null = typeof form[`alst${i}_${j}`] === 'undefined';
-            alarmString += `${j < 9 ? "0" : ""}${j}.- Onu id: ${form[`alarm${i}_${j}`]}  Status: ${ Null ? '' : form[`alst${i}_${j}`]}\n`;
-        }
-        let ports = selectPorts(form,i);
-        if (Object.keys(ports).length > 0) {
-            let NullP;
-            for (let j = 1; j < form[`ports${i}`] + 1; j++) {
-                Null = typeof form[`portst${i}_${j}`] === 'undefined';
-                NullP = typeof form[`port${i}_${j}`] === 'undefined';
-                if (j === 1) { 
-                    portString += `*- SPLITTER ${i} -*\n`;
-                    portString += `01 : ${form[`ports${i}`] > 9 ? "" : "0"}${form[`ports${i}`]}\n`;
+        splitter.alarms.forEach((alarm,j) => {
+            alarmString += `${(j + 1) < 9 ? "0" : ""}${j + 1}.- Onu id: ${alarm.alarm}  Status: ${alarm.status}\n`;
+        });
+        if (notNullPorts(splitter.ports)) {
+            for (let k = 1; k < splitter.portNumber + 1; k++) {
+                if (k === 1) { 
+                    portString += `*- SPLITTER ${i + 1} -*\n`;
+                    portString += `01 : ${splitter.portNumber > 9 ? "" : "0"}${splitter.portNumber}\n`;
                 }
-                portString += `Puerto ${j > 9 ? "" : "0"}${j} :   Cuenta : ${NullP ? '' : form[`port${i}_${j}`]}   Status: ${ Null ? '' : form[`portst${i}_${j}`]}\n`;
-                statusSummary[form[`portst${i}_${j}`]] += 1;
-                statusSummary.Total += Null ? 0 : 1;
+                portString += `Puerto ${k > 9 ? "" : "0"}${k} :   Cuenta : ${splitter.ports[`port${k}`] || ''}   Status: ${splitter.ports[`status${k}`] || ''}\n`;
+                statusSummary[splitter.ports[`status${k}`]] += 1;
+                statusSummary.Total += splitter.ports[`status${k}`] ? 1 : 0;
             }
         }
-    }
+    });
     summary = 
 `*-- DETALLE DE STATUS DE PUERTOS DE SPLITTER --*
 

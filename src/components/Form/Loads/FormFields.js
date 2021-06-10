@@ -10,12 +10,16 @@ const formFields = {
     coordinates: "",
     cluster: "",
     olt: "",
-    f1: 0,
-    s1: 0,
-    p1: 0,
-    bw1: "",
-    clients1: "",
-    ports1: 8,
+    splitters: [{
+        f: 0,
+        s: 0,
+        p: 0,
+        bw: "",
+        clients: "",
+        portNumber: 8,
+        ports: {},
+        alarms: []
+    }],
     comment: ""
 }
 
