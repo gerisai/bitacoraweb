@@ -1,7 +1,7 @@
 import { Tabs, TabList, TabPanel, TabPanels, Tab } from "@chakra-ui/react";
-import LogTable from './LogTable';
-import Stats from './Stats';
-import LogForm from './LogForm';
+import LogTable from '../components/LogTable';
+import Stats from '../components/Stats';
+import LogForm from '../components/LogForm';
 
 const CustomTabs = () => {
     return (

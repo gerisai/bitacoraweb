@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { 
 AlertDialog,
 AlertDialogBody,
-AlertDialogFooter,
 AlertDialogHeader,
 AlertDialogContent,
 AlertDialogOverlay,
@@ -47,8 +46,6 @@ const ScriptAlert = ({ isOpen, onClose, cancelRef, form }) => {
                 </Stack>
                     <Script form={form} setScriptState={setScriptState}/>
             </AlertDialogBody>
-            <AlertDialogFooter>
-            </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialogOverlay>
     </AlertDialog>

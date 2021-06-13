@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
 import { Accordion, Button, Stack } from '@chakra-ui/react';
 import { FcDocument, FcCheckmark, FcMakeDecision } from 'react-icons/fc';
-import FormSection from './FormSection';
+import FormSection from './Form/FormSection';
 import GeneralForm from './Form/GeneralForm';
 import LocationForm from './Form/LocationForm';
 import SplitterForm from './Form/SplitterForm';
 import CommentForm from './Form/CommentForm';
-import SendAlert from './Alerts/SendAlert';
+import { SuccessAlert } from './Alerts/Alerts';
 import ScriptAlert from './Alerts/ScriptAlert';
 import formFields from './Form/Loads/FormFields';
 
@@ -101,9 +101,10 @@ const LogForm = () => {
             <Button leftIcon={<FcCheckmark/>} colorScheme="teal" variant="outline" onClick={() => setSendIsOpen(true)}>Enviar</Button>
             <Button leftIcon={<FcMakeDecision/>} colorScheme="yellow" variant="outline" onClick={handleClean}>Limpiar</Button>
         </Stack>
-        <SendAlert isOpen={isSendOpen} onClose={onSendClose} cancelRef={cancelSendRef}/>
+        <SuccessAlert isOpen={isSendOpen} onClose={onSendClose} cancelRef={cancelSendRef} title={"Guardado"} message={"¡Tu depuración se guardó con éxito! ✌"}/>
         <ScriptAlert isOpen={isScriptOpen} onClose={onScriptClose} cancelRef={cancelScriptRef} form={form}/>
         </>
     );
-}   
- export default LogForm;
+}
+
+export default LogForm;
