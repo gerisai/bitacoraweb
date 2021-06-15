@@ -1,28 +1,56 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { Accordion, Button, Stack } from '@chakra-ui/react';
-import { FcDocument, FcCheckmark, FcMakeDecision } from 'react-icons/fc';
+import { FcDocument, FcCheckmark, FcMakeDecision, FcCancel } from 'react-icons/fc';
 import FormSection from './Form/FormSection';
 import GeneralForm from './Form/GeneralForm';
 import LocationForm from './Form/LocationForm';
 import SplitterForm from './Form/SplitterForm';
 import CommentForm from './Form/CommentForm';
-import { SuccessAlert } from './Alerts/Alerts';
-import ScriptAlert from './Alerts/ScriptAlert';
+import { SuccessAlert, ErrorAlert } from './Alerts/Alerts';
+import ScriptAlert from './Alerts/ScriptAlert'; 
 import formFields from './Form/Loads/FormFields';
+import useLog from '../hooks/useLog';
+import { FormContext } from '../hooks/FormContext';
 
 const LogForm = () => {
     //Form state
-    const [ form, setForm ] = useState(JSON.parse(JSON.stringify(formFields)));
-    //Send State
-    const [isSendOpen, setSendIsOpen] = useState(false)
-    const onSendClose = () => setSendIsOpen(false)
-    const cancelSendRef = useRef()
-    //Script State
-    const [isScriptOpen, setScriptIsOpen] = useState(false)
-    const onScriptClose = () => setScriptIsOpen(false)
-    const cancelScriptRef = useRef()
+    const { form, setForm } = useContext(FormContext);
+    const { editing, setEditing } = useContext(FormContext);
+    //Success Alert
+    const [isSuccessOpen, setSuccessIsOpen] = useState(false);
+    const onSuccessClose = () => setSuccessIsOpen(false);
+    const cancelSuccessRef = useRef();
+    const { createLog, editLog, error, setError, success, setSuccess } = useLog();
+    const [ successAlert, setSuccessAlert ] = useState({title: '',message: ''});
+    //Script Alert
+    const [isScriptOpen, setScriptIsOpen] = useState(false);
+    const onScriptClose = () => setScriptIsOpen(false);
+    const cancelScriptRef = useRef();
+    //Error Alert
+    const [isErrorOpen, setErrorIsOpen] = useState(false);
+    const onErrorClose = () => setErrorIsOpen(false);
+    const cancelErrorRef = useRef();
+    const [ errorAlert, setErrorAlert ] = useState({title: '',message: ''});
     //Support
     const [ support, setSupport ] = useState(false);
+
+    useEffect(() => {
+        if(error) {
+            setErrorAlert({ title: error.title, message: error.message });
+            setErrorIsOpen(true);
+            setError(null);
+        } 
+        if (success) {
+            setSuccessAlert({ title: success.title, message: success.message })
+            setSuccessIsOpen(true);
+            setSuccess(null); 
+        }
+    },[error,setError,success,setSuccess]);
+
+    const handleSave = async () => {
+        if (editing.status) await editLog(form,editing.id);
+        else await createLog(form);
+    }
     
     const addSplitter = () => {
         let newForm = {...form};
@@ -70,7 +98,12 @@ const LogForm = () => {
         newForm[e.target.name] = e.target.value;
         newForm = {...form,...newForm};
         setForm(newForm);
-    } 
+    }
+    
+    const handleCancel = () => {
+        handleClean();
+        setEditing({status: false, id: null});
+    }
 
     return(
         <>
@@ -98,11 +131,16 @@ const LogForm = () => {
         </Stack>
         <Stack direction="row" justify="center">
             <Button leftIcon={<FcDocument/>} colorScheme="blue" variant="outline" onClick={() => setScriptIsOpen(true)}>Script</Button>
-            <Button leftIcon={<FcCheckmark/>} colorScheme="teal" variant="outline" onClick={() => setSendIsOpen(true)}>Enviar</Button>
+            <Button leftIcon={<FcCheckmark/>} colorScheme="teal" variant="outline" onClick={handleSave}>Guardar</Button>
             <Button leftIcon={<FcMakeDecision/>} colorScheme="yellow" variant="outline" onClick={handleClean}>Limpiar</Button>
+            { editing.status ?
+                <Button leftIcon={<FcCancel/>} colorScheme="red" variant="outline" onClick={handleCancel}>Cancelar Edición</Button>
+                : ""
+            }
         </Stack>
-        <SuccessAlert isOpen={isSendOpen} onClose={onSendClose} cancelRef={cancelSendRef} title={"Guardado"} message={"¡Tu depuración se guardó con éxito! ✌"}/>
+        <SuccessAlert isOpen={isSuccessOpen} onClose={onSuccessClose} cancelRef={cancelSuccessRef} title={successAlert.title} message={successAlert.message}/>
         <ScriptAlert isOpen={isScriptOpen} onClose={onScriptClose} cancelRef={cancelScriptRef} form={form}/>
+        <ErrorAlert isOpen={isErrorOpen} onClose={onErrorClose} cancelRef={cancelErrorRef} title={errorAlert.title} message={errorAlert.message}/>
         </>
     );
 }

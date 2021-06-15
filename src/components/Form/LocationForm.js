@@ -16,7 +16,7 @@ const LocationForm = ({ form, handleChange }) => {
             </Select>        
         </WrapItem>
         <WrapItem>
-            <Input variant="filled" placeholder="OLT" name="olt" onChange={handleChange} value={form.olt} style={{textTransform: 'uppercase'}}/>
+            <Input variant="filled" placeholder="OLT" name="olt" onChange={(e) => { e.target.value = e.target.value.toUpperCase(); handleChange(e) }} value={form.olt} style={{textTransform: 'uppercase'}}/>
         </WrapItem>
     </Wrap>
     );

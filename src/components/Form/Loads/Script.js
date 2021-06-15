@@ -1,13 +1,21 @@
+import { useContext } from 'react';
 import { Textarea } from '@chakra-ui/react';
+import { UserContext } from './../../../hooks/UserContext';
 
-const notNullPorts = (ports,i) => {
+const notNullPorts = (ports) => {
+    console.log(ports)
     for (let port in ports) {
-        if (ports[port]) return true;
+        if (Array.isArray(ports)) {
+            if (ports[port].port) return true
+        } else {
+            if (ports[port]) return true;
+        }
     }
     return false;
 }
 
 const Script = ({ form, setScriptState }) => {
+    const { user } = useContext(UserContext);
     let [ alarmString, portString, summary ] = ["","",""];
     let statusSummary = {
         Libre: 0,
@@ -72,7 +80,7 @@ const Script = ({ form, setScriptState }) => {
 *OLT:* ${form.olt}\n${alarmString !== "" ? "\n    *--DETALLE DE STATUS ONT--*\n" : ""}${alarmString}${portString !== "" ? "\n    *--DETALLE DE PUERTOS DE SPLITTER--*\n" : ""}${portString} 
     *--COMENTARIOS ADICIONALES--* 
 ${form.comment}
-    *--INGENIERO SCPE: NOMBRE COMPLETO *--*   
+    *--INGENIERO SCPE: ${user.name} *--*   
 
 ${portString !== "" ? summary : ""}
 `;

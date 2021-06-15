@@ -5,7 +5,7 @@ import { UserContext } from './UserContext';
 
 export default function useAuth() {
     let history = useHistory();
-    const { setUser } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
     const [error, setError] = useState(null);
     //set user in context and push them home
     const setUserContext = async () => {
@@ -34,12 +34,29 @@ export default function useAuth() {
         return axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
             numEmpl,
             password
-        }, { withCredentials: true }).then(async () => {
+        }, { withCredentials: true })
+        .then(async () => {
             await setUserContext();
         }).catch((err) => {
             setError(err.response.data);
         });
     };
+
+    //edit user 
+    const editUser = async (data) => {
+        const { password, name } = data;
+        const id = user._id;
+        return axios.put(`${process.env.REACT_APP_API_URL}/user`, {
+            id,
+            password,
+            name,
+        }, { withCredentials: true })
+        .then(async () => {
+            await setUserContext();
+        }).catch((err) => {
+            setError(err.response.data);
+        });
+    }
 
     //logout user
     const logoutUser = async () => {
@@ -55,6 +72,7 @@ export default function useAuth() {
     registerUser,
     loginUser,
     logoutUser,
+    editUser,
     error,
     setError
     }

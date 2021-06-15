@@ -1,32 +1,34 @@
-import { Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react"
+import { useContext } from 'react';
+import { Table, Thead, Tbody, Tr, Th } from "@chakra-ui/react"
+import { UserContext } from '../hooks/UserContext';
+import LogRecord from './LogRecord';
 
 const LogTable = () => {
+    // User context
+    const { user } = useContext(UserContext);
+
     return (
 <Table variant="simple" colorScheme="telegram"> 
 <Thead>
     <Tr>
-    <Th>OS</Th>
-    <Th>IDC</Th>
-    <Th>Nombre</Th>
+    <Th>Servicio</Th>
+    <Th>ID</Th>
     <Th>Fecha</Th>
+    <Th>Hora</Th>
+    <Th>Tipo</Th>
+    <Th>Num. Empl.</Th>
+    <Th>IDC</Th>
+    <Th>Editar</Th>
+    <Th>Borrar</Th>
     </Tr>
 </Thead>
 <Tbody>
-    <Tr>
-    <Td>inches</Td>
-    <Td>millimetres (mm)</Td>
-    <Td isNumeric>25.4</Td>
-    </Tr>
-    <Tr>
-    <Td>feet</Td>
-    <Td>centimetres (cm)</Td>
-    <Td isNumeric>30.48</Td>
-    </Tr>
-    <Tr>
-    <Td>yards</Td>
-    <Td>metres (m)</Td>
-    <Td isNumeric>0.91444</Td>
-    </Tr>
+    {
+        user.logs.map((log,i) => <LogRecord key={i} idx={i} _id={log._id}
+                                service={log.service} id={log.id} date={log.date} 
+                                type={log.type} numEmpl={log.numEmpl} idc={log.idc}/>
+        )
+    }
 </Tbody>
 </Table>
     );

@@ -1,25 +1,34 @@
+import { useState } from 'react';
 import { Tabs, TabList, TabPanel, TabPanels, Tab } from "@chakra-ui/react";
 import LogTable from '../components/LogTable';
 import Stats from '../components/Stats';
 import LogForm from '../components/LogForm';
+import { FormContext } from '../hooks/FormContext';
+import useForm from '../hooks/useForm'; 
 
 const CustomTabs = () => {
+    const { form, setForm } = useForm();
+    const [ tabIndex, setTabIndex ] = useState(0);
+    const [ editing, setEditing ] = useState({status: false, id: null});
+
     return (
-    <Tabs  colorScheme="teal" variant="soft-rounded" align="center" size="lg">
-        <TabList mb="1em">
-            <Tab>Captura</Tab>
-            <Tab>Registro</Tab>
-        </TabList>
-        <TabPanels>
-            <TabPanel>
-                <LogForm/>
-            </TabPanel>
-            <TabPanel>
-                <Stats/>
-                <LogTable/>
-            </TabPanel>
-        </TabPanels>
-    </Tabs>
+    <FormContext.Provider value={{ form, setForm, setTabIndex, editing, setEditing }}>
+        <Tabs  colorScheme="teal" variant="soft-rounded" align="center" size="lg" index={tabIndex}>
+            <TabList mb="1em">
+                <Tab onClick={() => setTabIndex(0)}>Captura</Tab>
+                <Tab onClick={() => setTabIndex(1)}>Registro</Tab>
+            </TabList>
+            <TabPanels>
+                <TabPanel>
+                    <LogForm/>
+                </TabPanel>
+                <TabPanel>
+                    <Stats/>
+                    <LogTable/>
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
+    </FormContext.Provider>
     );
 }
 

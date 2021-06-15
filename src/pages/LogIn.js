@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Flex, Heading, Input, Button } from '@chakra-ui/react';
+import { Flex, Heading, Input, Button, InputGroup, InputRightElement } from '@chakra-ui/react';
+import { BiShow, BiHide } from "react-icons/bi";
 import { Link, useHistory } from 'react-router-dom';
 import { ErrorAlert } from '../components/Alerts/Alerts';
 import  useAuth from '../hooks/useAuth';
@@ -16,6 +17,7 @@ const LogIn = ({ location }) => {
     const { loginUser, error, setError } = useAuth();
     // Form
     const [tempUser, setTempUser] = useState({ numEmpl: '', password: ''});
+    const [show, setShow] = useState(false)
 
     useEffect(() => {
         if (location.state && location.state.from === "Private") {
@@ -30,6 +32,8 @@ const LogIn = ({ location }) => {
         }
     },[location,history,error,setError]);
 
+    const handleShow = () => setShow(!show);
+
     const handleChange = (e) => {
         const newUser = {
             ...tempUser,    
@@ -42,13 +46,19 @@ const LogIn = ({ location }) => {
         await loginUser(tempUser);
     }
     
-
     return (
     <Flex direction="row" height="100vh" alignItems="center" justifyContent="center" background="gray.200">
         <Flex direction="column" background="gray.100" p={12} rounded={6} align="center">
             <Heading mb={6}>Iniciar Sesión</Heading>
             <Input placeholder="Num. Empleado" variant="flushed" mb={3} name="numEmpl" type="number" colorScheme="black" onChange={handleChange}/>
-            <Input placeholder="Contraseña" variant="flushed" mb={6} name="password" type="password" onChange={handleChange}/>
+            <InputGroup>
+                <Input placeholder="Contraseña" variant="flushed" mb={6} name="password" type={show ? "text" : "password"} onChange={handleChange}/>
+                <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={handleShow}>
+                        {show ? <BiHide/>: <BiShow/>}
+                    </Button>
+                </InputRightElement>
+            </InputGroup>
             <Button colorScheme="teal" onClick={handleLogin} size="lg">Entrar</Button>
             <Link to="/register"><Button colorScheme="blue" my={2} size="sm">Registro</Button></Link>
         </Flex>

@@ -30,7 +30,7 @@ const GeneralForm = ({ form, handleChange, handleService, support }) => {
         <Input variant="filled" placeholder="Num Empleado" maxW={170} name="numEmpl" onChange={handleChange} value={form.numEmpl}/>
     </WrapItem>
     <WrapItem>
-        <Input variant="filled" placeholder="Nombre IDC" minW={250} name="idc" onChange={handleChange} value={form.idc} style={{textTransform: 'uppercase'}}/>
+        <Input variant="filled" placeholder="Nombre IDC" minW={250} name="idc" onChange={(e) => { e.target.value = e.target.value.toUpperCase(); handleChange(e) }} value={form.idc} style={{textTransform: 'uppercase'}}/>
     </WrapItem>
     <WrapItem>
         <Select placeholder="Proveedor" variant="filled" name="provider" onChange={handleChange} value={form.provider}>

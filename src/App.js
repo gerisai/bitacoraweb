@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import LogIn from './pages/LogIn';
 import Register from './pages/Register';
 import PrivateRoute from './pages/PrivateRoute';
+import NotFound from './pages/NotFound';
 
 function App() {
   const { user, setUser, isLoading } = useFindUser(); 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" component={LogIn}/>
         <Route path="/register" component={Register}/>
         <PrivateRoute path="/home" component={Home} />
+        <Route component={NotFound}/>
       </Switch>
     </UserContext.Provider>
   );
