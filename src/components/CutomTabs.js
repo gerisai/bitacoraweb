@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Tabs, TabList, TabPanel, TabPanels, Tab } from "@chakra-ui/react";
 import LogTable from '../components/LogTable';
 import Stats from '../components/Stats';
 import LogForm from '../components/LogForm';
 import { FormContext } from '../hooks/FormContext';
+import { UserContext } from '../hooks/UserContext';
 import useForm from '../hooks/useForm'; 
 
 const CustomTabs = () => {
     const { form, setForm } = useForm();
+    const { user } = useContext(UserContext);
     const [ tabIndex, setTabIndex ] = useState(0);
     const [ editing, setEditing ] = useState({status: false, id: null});
 
@@ -23,7 +25,7 @@ const CustomTabs = () => {
                     <LogForm/>
                 </TabPanel>
                 <TabPanel>
-                    <Stats/>
+                    <Stats total={user.logs.length}/>
                     <LogTable/>
                 </TabPanel>
             </TabPanels>

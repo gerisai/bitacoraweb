@@ -6,46 +6,38 @@ import GeneralForm from './Form/GeneralForm';
 import LocationForm from './Form/LocationForm';
 import SplitterForm from './Form/SplitterForm';
 import CommentForm from './Form/CommentForm';
-import { SuccessAlert, ErrorAlert } from './Alerts/Alerts';
 import ScriptAlert from './Alerts/ScriptAlert'; 
 import formFields from './Form/Loads/FormFields';
 import useLog from '../hooks/useLog';
 import { FormContext } from '../hooks/FormContext';
+import { AlertContext } from '../hooks/AlertContext';
 
 const LogForm = () => {
     //Form state
-    const { form, setForm } = useContext(FormContext);
-    const { editing, setEditing } = useContext(FormContext);
-    //Success Alert
-    const [isSuccessOpen, setSuccessIsOpen] = useState(false);
-    const onSuccessClose = () => setSuccessIsOpen(false);
-    const cancelSuccessRef = useRef();
-    const { createLog, editLog, error, setError, success, setSuccess } = useLog();
-    const [ successAlert, setSuccessAlert ] = useState({title: '',message: ''});
+    const { form, setForm, editing, setEditing } = useContext(FormContext);
+    // Log state
+    const { createLog, editLog, error, setError, success, setSuccess, saveLoading } = useLog();
     //Script Alert
     const [isScriptOpen, setScriptIsOpen] = useState(false);
     const onScriptClose = () => setScriptIsOpen(false);
     const cancelScriptRef = useRef();
-    //Error Alert
-    const [isErrorOpen, setErrorIsOpen] = useState(false);
-    const onErrorClose = () => setErrorIsOpen(false);
-    const cancelErrorRef = useRef();
-    const [ errorAlert, setErrorAlert ] = useState({title: '',message: ''});
+    //Alert
+    const { setAlertState, setIsOpen } = useContext(AlertContext);
     //Support
     const [ support, setSupport ] = useState(false);
 
     useEffect(() => {
         if(error) {
-            setErrorAlert({ title: error.title, message: error.message });
-            setErrorIsOpen(true);
+            setAlertState({ title: error.title, message: error.message, status: 'error' });
+            setIsOpen(true);
             setError(null);
         } 
         if (success) {
-            setSuccessAlert({ title: success.title, message: success.message })
-            setSuccessIsOpen(true);
+            setAlertState({ title: success.title, message: success.message, status: 'success' });
+            setIsOpen(true);
             setSuccess(null); 
         }
-    },[error,setError,success,setSuccess]);
+    },[error,setError,success,setSuccess, setAlertState, setIsOpen]);
 
     const handleSave = async () => {
         if (editing.status) await editLog(form,editing.id);
@@ -131,16 +123,14 @@ const LogForm = () => {
         </Stack>
         <Stack direction="row" justify="center">
             <Button leftIcon={<FcDocument/>} colorScheme="blue" variant="outline" onClick={() => setScriptIsOpen(true)}>Script</Button>
-            <Button leftIcon={<FcCheckmark/>} colorScheme="teal" variant="outline" onClick={handleSave}>Guardar</Button>
+            <Button leftIcon={<FcCheckmark/>} colorScheme="teal" variant="outline" onClick={handleSave} isLoading={saveLoading}>Guardar</Button>
             <Button leftIcon={<FcMakeDecision/>} colorScheme="yellow" variant="outline" onClick={handleClean}>Limpiar</Button>
             { editing.status ?
                 <Button leftIcon={<FcCancel/>} colorScheme="red" variant="outline" onClick={handleCancel}>Cancelar Edición</Button>
                 : ""
             }
         </Stack>
-        <SuccessAlert isOpen={isSuccessOpen} onClose={onSuccessClose} cancelRef={cancelSuccessRef} title={successAlert.title} message={successAlert.message}/>
         <ScriptAlert isOpen={isScriptOpen} onClose={onScriptClose} cancelRef={cancelScriptRef} form={form}/>
-        <ErrorAlert isOpen={isErrorOpen} onClose={onErrorClose} cancelRef={cancelErrorRef} title={errorAlert.title} message={errorAlert.message}/>
         </>
     );
 }

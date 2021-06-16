@@ -1,79 +1,115 @@
-import { useState, useEffect, useRef } from 'react';
-import { Flex, Heading, Input, Button, InputGroup, InputRightElement, useToast } from '@chakra-ui/react';
-import { BiShow, BiHide } from "react-icons/bi";
+import { useState, useEffect } from 'react';
+import { Formik, Form, Field } from 'formik'; 
+import { Flex, Heading, FormControl, Input, Button, InputGroup, InputRightElement, useToast, FormErrorMessage } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { ErrorAlert } from '../components/Alerts/Alerts';
+import { BiShow, BiHide } from "react-icons/bi";
 import  useAuth from '../hooks/useAuth';
 
 const Register = () => {
-    //Toast Error
+    //Toast
     const toast = useToast();
     // User form
-    const [tempUser, setTempUser] = useState({ numEmpl: '', password: ''});
-    const [show, setShow] = useState(false)
-    const [showConfirm, setShowConfirm] = useState(false)
+    const [ show, setShow ] = useState(false)
+    const [ showConfirm, setShowConfirm ] = useState(false)
     // Auth
     const { registerUser, error, setError } = useAuth();
-    // Error Alert
-    const [isAlertOpen, setAlertIsOpen] = useState(false)
-    const onAlertClose = () => setAlertIsOpen(false)
-    const cancelAlertRef = useRef()
-    const [ alert, setAlert ] = useState({title: '',message: ''});
 
     useEffect(() => {
-        if(error) {
-            setAlert({title: 'Error', message: error})
-            setAlertIsOpen(true);
+        if(error && !toast.isActive('Server-Error')) {
+            toast({
+                id: 'Server-Error',
+                title: "Error",
+                description: error,
+                status: "error",
+                duration: 9000,
+                isClosable: true,
+            });
             setError(null);
         }
-    },[error,setError]);
+    },[error,setError, toast]);
 
     const handleShow = () => setShow(!show);
     const handleShowConfirm = () => setShowConfirm(!showConfirm);
 
-    const handleChange = (e) => {
-        const newUser = {
-            ...tempUser,    
-            [e.target.name]: e.target.value
-        };
-        setTempUser(newUser);
-    }
-
-    const handleRegister = async () => {
-        if (tempUser.password !== tempUser.passwordConfirm) return toast({
+    const handleRegister = async (values, actions) => {
+        values.name = values.name.toUpperCase();
+        if ( (values.password !== values.passwordConfirm) && (!toast.isActive('Not-Matching-Password')) ) return toast({
+            id: 'Not-Matching-Password',
             title: "Error",
             description: "Las contraseñas no coinciden",
             status: "error",
             duration: 9000,
             isClosable: true,
         });
-        await registerUser(tempUser);
+        await registerUser({...values});
+        actions.setSubmitting(false);
+    }
+
+    const validateField = (value) => {
+        let error;
+        if(!value) error = 'El campo no puede estar vacío';
+        else return
+        return error;
     }
 
     return (
     <Flex direction="column" height="100vh" alignItems="center" justifyContent="center" background="gray.200">
         <Flex direction="column" background="gray.100" p={12} rounded={6}>
             <Heading mb={6}>Registro</Heading>
-            <Input placeholder="Nombre Completo" name="name" onChange={handleChange} variant="flushed" mb={3} colorScheme="black" style={{ textTransform: "uppercase" }}/>
-            <Input placeholder="Num. Empleado" name="numEmpl" onChange={handleChange} variant="flushed" mb={3} type="number" colorScheme="black"/>
-            <InputGroup>
-                <Input placeholder="Contraseña" name="password" onChange={handleChange} variant="flushed" mb={6} type={show ? "text" : "password"}/>
-                <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={handleShow}>
-                        {show ? <BiHide/>: <BiShow/>}
-                    </Button>
-                </InputRightElement>
-            </InputGroup>
-            <InputGroup>
-                <Input placeholder="Confirmar contraseña" name="passwordConfirm" onChange={handleChange} variant="flushed" mb={6} type={showConfirm ? "text" : "password"}/>
-                <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={handleShowConfirm}>
-                        {showConfirm ? <BiHide/>: <BiShow/>}
-                    </Button>
-                </InputRightElement>
-            </InputGroup>
-            <Link to="/register"><Button colorScheme="blue" my={2} onClick={handleRegister}>Dale 🤘</Button></Link>
-            <ErrorAlert id="errorAlert" isOpen={isAlertOpen} onClose={onAlertClose} cancelRef={cancelAlertRef} title={alert.title} message={alert.message}/>
+            <Formik initialValues={{name:"", numEmpl: "", password: "", passwordConfirm: ""}} onSubmit={handleRegister}>
+                {(props) => ( 
+                <Form>
+                    <Field name="name" validate={validateField}>
+                        {({ field,form }) => (
+                        <FormControl isInvalid={form.errors.name && form.touched.name} mb={3}>
+                            <Input {...field} id="name" placeholder="Nombre completo" variant="flushed" />
+                            <FormErrorMessage>{form.errors.name}</FormErrorMessage>
+                        </FormControl>
+                        )}
+                    </Field>
+                    <Field name="numEmpl" validate={validateField}>
+                        {({ field,form }) => (
+                        <FormControl isInvalid={form.errors.numEmpl && form.touched.numEmpl} mb={3}>
+                            <Input {...field} id="numEmpl" placeholder="Num. Empleado" variant="flushed" type="number"/>
+                            <FormErrorMessage>{form.errors.numEmpl}</FormErrorMessage>
+                        </FormControl>
+                        )}
+                    </Field>
+                    <Field name="password" validate={validateField}>
+                        {({ field,form }) => (
+                        <FormControl isInvalid={form.errors.password && form.touched.password} mb={3}>
+                            <InputGroup>
+                                <Input {...field} id="password" placeholder="Contraseña" variant="flushed"  type={show ? "text" : "password"}/>
+                                <InputRightElement width="4.5rem">
+                                    <Button h="1.75rem" size="sm" onClick={handleShow}>
+                                        {show ? <BiHide/>: <BiShow/>}
+                                    </Button>
+                                </InputRightElement>
+                            </InputGroup>
+                            <FormErrorMessage>{form.errors.password}</FormErrorMessage>
+                        </FormControl>
+                        )}
+                    </Field>
+                    <Field name="passwordConfirm" validate={validateField} mb={3}> 
+                        {({ field,form }) => (
+                        <FormControl isInvalid={form.errors.passwordConfirm && form.touched.passwordConfirm}>
+                            <InputGroup>
+                                <Input {...field} id="passwordConfirm" placeholder="Confirmar contraseña"  variant="flushed" type={showConfirm ? "text" : "password"}/>
+                                <InputRightElement width="4.5rem">
+                                    <Button h="1.75rem" size="sm" onClick={handleShowConfirm}>
+                                        {showConfirm ? <BiHide/>: <BiShow/>}
+                                    </Button>
+                                </InputRightElement>
+                            </InputGroup>
+                            <FormErrorMessage>{form.errors.passwordConfirm}</FormErrorMessage>
+                        </FormControl>
+                        )}
+                    </Field>
+                <Button colorScheme="blue" mt={3} type="submit" isLoading={props.isSubmitting}>Dale 🤘</Button>
+                </Form>
+                )}
+            </Formik>
+            <Link to="/login"><Button colorScheme="blue" mt={6} size="sm" variant="link">¿Ya estás registrado?</Button></Link>
         </Flex>
     </Flex>
     );

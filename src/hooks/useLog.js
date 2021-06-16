@@ -9,6 +9,8 @@ export default function useLog() {
     const { user, setUser } = useContext(UserContext);
     const [ error, setError ] = useState(null);
     const [ success, setSuccess ] = useState(null);
+    const [ saveLoading, setSaveLoading ] = useState(false);
+    const [ deleteLoading, setDeleteLoading ] = useState(false);
     const { setForm, setTabIndex, setEditing } = useContext(FormContext);
     
     //set user in context and push them home
@@ -17,10 +19,11 @@ export default function useLog() {
         setUser(res.data.currentUser);
         history.push('/home');
         }).catch((err) => {
-            setError({ title: 'Error', message: err.response.data});
+            setError({ title: 'Error', message: err.response.data, status: 'error'});
         });
     }
-
+    
+    // prepares form to be sent
     const shapeForm = (data) => {
         const newLog = {...data};
         newLog.date = new Date();
@@ -39,13 +42,16 @@ export default function useLog() {
 
     //add log
     const createLog = async (data) => {
+        setSaveLoading(true);
         const newLog = shapeForm(data);
         return axios.post(`${process.env.REACT_APP_API_URL}/log`,{ log: newLog, numEmpl: user.numEmpl }, { withCredentials: true })
         .then(async () => {
             await setUserContext();
-            setSuccess({title: 'Guardado', message: 'Depuración guardada con éxito ✌️'});
+            setSuccess({title: 'Guardado', message: 'Depuración guardada con éxito ✌️', status: 'success'});
+            setSaveLoading(false);
         }).catch((err) => {
-            setError({title:'Error', message: err.response.data});
+            setError({title:'Error', message: err.response.data, status: 'error'});
+            setSaveLoading(false);
         });
     }
 
@@ -58,23 +64,29 @@ export default function useLog() {
 
     //edit log
     const editLog =  async (data, _id) => {
+        setSaveLoading(true);
         const newLog = shapeForm(data);
         return axios.put(`${process.env.REACT_APP_API_URL}/log`,{ log: newLog, id: _id, numEmpl: user.numEmpl }, { withCredentials: true })
         .then(async () => {
             await setUserContext();
-            setSuccess({title: 'Guardado', message: 'Depuración editada con éxito ✌️'});
+            setSuccess({title: 'Guardado', message: 'Depuración editada con éxito ✌️', status: 'success'});
+            setSaveLoading(false);
         }).catch((err) => {
-            setError({title:'Error', message: err.response.data});
+            setError({title:'Error', message: err.response.data, status: 'error'});
+            setSaveLoading(false);
         });
     }
 
     //delete log
     const deleteLog = async (_id) => {
+        setDeleteLoading(true);
         return axios.delete(`${process.env.REACT_APP_API_URL}/log`,{ data: { id: _id, numEmpl: user.numEmpl }}, { withCredentials: true })
         .then(async () => {
             await setUserContext();
+            setDeleteLoading(false);
         }).catch((err) => {
-            setError({title:'Error', message: err.response.data});
+            setError({title:'Error', message: err.response.data, status: 'error'});
+            setDeleteLoading(false);
         });
     }
 
@@ -86,6 +98,8 @@ export default function useLog() {
     error,
     setError,
     success,
-    setSuccess
+    setSuccess,
+    saveLoading,
+    deleteLoading
     }
 }

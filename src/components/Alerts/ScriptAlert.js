@@ -13,8 +13,8 @@ import Script from '../Form/Loads/Script';
 import { FcDocument } from 'react-icons/fc';
 
 const ScriptAlert = ({ isOpen, onClose, cancelRef, form }) => {
-    const [scriptState, setScriptState] = useState("");
-    const [copyState, setCopyState ] = useState(false);
+    const [ scriptState, setScriptState] = useState("");
+    const [ copyState, setCopyState ] = useState(false);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(scriptState);
